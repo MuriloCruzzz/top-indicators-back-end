@@ -30,6 +30,8 @@ export const getLinhasListadas = (_, res) => {
             }
             
             console.log("teste listar Linhas ok");
+
+            
     
             return res.status(200).json(data);
         }
@@ -47,9 +49,10 @@ export const getParametrosLinha = (_, res) => {
 
         if (err) return res.json(err);
 
-        console.log(data);
+        //console.log(data);
    
         return res.status(200).json(data);
         
     });
 };
+
