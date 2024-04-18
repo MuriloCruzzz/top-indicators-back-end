@@ -47,3 +47,30 @@ WHERE
         
     });
 };
+
+export const postAtualizarParametrosLinha = (req, res) => {
+
+    const id_producao = req.body.id_producao;
+
+
+    //const queryListarParametros = "SELECT id_producao, id_produto_materia_prima, id_produto_material, id_produto_acabado, quantidade_produzidas, quantidade_demanda_atual, tempo_total_producao, hora_inicial, hora_final, quantidade_refugo_materia_prima, quantidade_refugo_produto_acabado, quantidade_refugo_material, tempo_parada_linha, observacao_parada_linha, status_producao, quantidade_operadores, turno FROM producao_linha";
+    const queryAtualizarParametros = `SELECT hora_inicial, quantidade_refugo_materia_prima, 
+    quantidade_refugo_material, quantidade_refugo_produto_acabado, quantidade_produzidas, quantidade_operadores, turno
+    FROM producao_linha 
+    WHERE id_producao = `+ id_producao +`;`
+
+
+    
+    db.query(queryAtualizarParametros, (err, data) => {
+
+        if (err) return res.json(err);
+
+        console.log("Query ok!");
+   
+        return res.status(200). json(data);
+        
+    });
+};
+
+
+
