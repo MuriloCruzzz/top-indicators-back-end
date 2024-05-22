@@ -2,6 +2,7 @@ import express from "express";
 import userRoutes from "./routes/users.js";
 import getLinhas from "./routes/listar_linhas_router.js";
 import postParadas from "./routes/inserirParadas.js";
+import getGraficos from "./routes/graficos.js";
 import cors from "cors";
 
 const port = 8800;
@@ -16,7 +17,7 @@ app.use("/linhas", getLinhas);
 
 app.use("/paradas", postParadas);
 
-
+app.use("/graficos", getGraficos);
 
 
 app.listen(port);

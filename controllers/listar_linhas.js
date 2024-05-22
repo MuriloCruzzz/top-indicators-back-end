@@ -27,6 +27,10 @@ export const getLinhasListadas = (_, res) => {
                 {
                     row.status_producao = "Linha Finalizada";
                 }
+                if(row.status_producao == 3)
+                {
+                    row.status_producao = "Linha Parada";
+                }
             }
             
             console.log("teste listar Linhas ok");
@@ -55,4 +59,73 @@ export const getParametrosLinha = (_, res) => {
         
     });
 };
+
+export const postFinalizarLinha = (req, res) => {
+
+    const id_producao = req.body.id_producao;
+    const quantidadeProduzida =req.body.quantidadeProduzida;
+    const horaInicial =req.body.horaInicial;
+    const refugoMateriaPrima =req.body.refugoMateriaPrima;
+    const refugoMaterias =req.body.refugoMaterias;
+    const refugoProdutoAcabado =req.body.refugoProdutoAcabado;
+    const turno =req.body.turno;
+    const quatidadeOperadores =req.body.quatidadeOperadores;
+    const tempo_Json =req.body.tempoTotalParadas;
+    const materiaPrima =req.body.materia_prima;
+    const componente =req.body.componente;
+    const tempoTotalProducao = `00:${tempo_Json}`;
+    const dataHoraAtual = new Date();
+
+// Extrair os componentes da data/hora
+    const ano = dataHoraAtual.getFullYear();
+    const mes = String(dataHoraAtual.getMonth() + 1).padStart(2, '0');
+    const dia = String(dataHoraAtual.getDate()).padStart(2, '0');
+    const hora = String(dataHoraAtual.getHours()).padStart(2, '0');
+    const minutos = String(dataHoraAtual.getMinutes()).padStart(2, '0');
+    const segundos = String(dataHoraAtual.getSeconds()).padStart(2, '0');
+
+    // Formatar a data e hora no formato desejado
+    const horaAtual = `${ano}-${mes}-${dia} ${hora}:${minutos}:${segundos}`;
+
+    const MateriaPrimaAtualizada = refugoMateriaPrima + refugoProdutoAcabado;
+    const componenteAtualizada = refugoMaterias + refugoProdutoAcabado;
+    //const queryListarParametros = "SELECT id_producao, id_produto_materia_prima, id_produto_material, id_produto_acabado, quantidade_produzidas, quantidade_demanda_atual, tempo_total_producao, hora_inicial, hora_final, quantidade_refugo_materia_prima, quantidade_refugo_produto_acabado, quantidade_refugo_material, tempo_parada_linha, observacao_parada_linha, status_producao, quantidade_operadores, turno FROM producao_linha";
+    const queryFinalizarLinha = `UPDATE producao_linha SET hora_final = '${horaAtual}', quantidade_produzidas = ${quantidadeProduzida}, hora_inicial = '${horaInicial}', quantidade_refugo_materia_prima = ${refugoMateriaPrima}, quantidade_refugo_material = ${refugoMaterias}, quantidade_refugo_produto_acabado = ${refugoProdutoAcabado}, turno = '${turno}', tempo_total_producao = '${tempoTotalProducao}', quantidade_operadores = ${quatidadeOperadores}, status_producao = 2 WHERE id_producao = ${id_producao};`;
+
+    const queryConsumirEstoqueMateriaPrima = "UPDATE produto_materia_prima SET Quantidade = Quantidade - "+ MateriaPrimaAtualizada +" WHERE Nome = '"+ materiaPrima +"';";
+    const queryConsumirEstoqueComponente = "UPDATE produto_materia_prima_componente SET Quantidade = Quantidade - "+ componenteAtualizada +" WHERE Nome = '"+ componente +"';";
+
+
+
+
+    
+    db.query(queryFinalizarLinha, (err, data) => {
+
+        if (err) return res.json(err);
+
+        console.log("Query 1 ok!");
+   
+        return res.status(200). json(data);
+        
+    });
+
+    db.query(queryConsumirEstoqueMateriaPrima, (err, data) => {
+
+        if (err) return res.json(err);
+
+        console.log("Query 2 ok!");
+   
+    });
+
+    db.query(queryConsumirEstoqueComponente, (err, data) => {
+
+        if (err) return res.json(err);
+
+        console.log("Query 3 ok!");
+   
+        
+    });
+};
+
+
 
