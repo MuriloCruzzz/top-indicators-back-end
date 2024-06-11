@@ -3,7 +3,7 @@ import { postGerarGraficosInicial, pegarEstoqueComponente, pegarBuscarEstoque,pe
 
 const router = express.Router();
 
-router.get("/gerar_graficos_inicial", postGerarGraficosInicial);
+router.post("/gerar_graficos_inicial", postGerarGraficosInicial);
 
 router.post("/pegar_produtos_clientes", postProdutosClientes); 
 

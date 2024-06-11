@@ -1,17 +1,20 @@
 import { db } from "../db.js";
 
-export const postGerarGraficosInicial = (_, res) => {
+export const postGerarGraficosInicial = (req, res) => {
 
-    const queryGerarRelatoriosGeral = "SELECT SUM(quantidade_produzidas) AS total_produzido, SUM(quantidade_demanda_atual) AS total_demandado, SUM(quantidade_refugo_material + quantidade_refugo_produto_acabado + quantidade_refugo_materia_prima) AS total_refugo FROM producao_linha;";
+    const data_inicial = req.body.data_inicial;
+    const data_final = req.body.data_final;
 
+    const queryGerarRelatoriosGeral = "SELECT SUM(quantidade_produzidas) AS total_produzido, SUM(quantidade_demanda_atual) AS total_demandado, SUM(quantidade_refugo_material + quantidade_refugo_produto_acabado + quantidade_refugo_materia_prima) AS total_refugo, SUM(PPH) / COUNT(*) AS media_PPH, SUM(YELD) / COUNT(*) AS media_YIELD, SUM(KU) / COUNT(*) AS media_KU, ROUND(SUM(quantidade_refugo_material + quantidade_refugo_produto_acabado + quantidade_refugo_materia_prima) / (DATEDIFF(MAX(hora_final), MIN(hora_final)) + 1), 2) AS media_diaria_refugo FROM producao_linha WHERE DATE(hora_final) >= '"+data_inicial+"' AND DATE(hora_final) <= '"+data_final+"';";
 
     db.query(queryGerarRelatoriosGeral, (err, data) => {
 
         if (err) return res.json(err);
 
-        //console.log(data);
+        console.log(data);
    
         return res.status(200).json(data);
+        
         
     });
 };
@@ -58,7 +61,7 @@ export const postGerarGraficosClientes = (req, res) => {
     console.log(data_final);
 
 
-    const queryBuscarProdutos = "SELECT SUM(quantidade_produzidas) AS total_produzido, SUM(quantidade_demanda_atual) AS total_demandado, SUM(quantidade_refugo_material + quantidade_refugo_produto_acabado + quantidade_refugo_materia_prima) AS total_refugo FROM producao_linha WHERE id_produto_acabado IN (SELECT nome FROM produto_acabado WHERE Cliente = '"+ cliente +"') AND DATE(hora_final) >= '"+ data_inicial +"' AND DATE(hora_final) <= '"+ data_final +"';"
+    const queryBuscarProdutos = "SELECT SUM(quantidade_produzidas) AS total_produzido, SUM(quantidade_demanda_atual) AS total_demandado, SUM(quantidade_refugo_material + quantidade_refugo_produto_acabado + quantidade_refugo_materia_prima) AS total_refugo FROM producao_linha WHERE id_produto_acabado IN (SELECT nome FROM produto_acabado WHERE Cliente = '"+ cliente +"') AND DATE(TRIM(hora_final)) >= '"+ data_inicial +"' AND DATE(TRIM(hora_final)) <= '"+ data_final +"';"
     
     db.query(queryBuscarProdutos, (err, data) => {
 

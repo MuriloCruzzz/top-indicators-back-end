@@ -87,18 +87,23 @@ export const postFinalizarLinha = (req, res) => {
     // Formatar a data e hora no formato desejado
     const horaAtual = `${ano}-${mes}-${dia} ${hora}:${minutos}:${segundos}`;
 
-    const MateriaPrimaAtualizada = refugoMateriaPrima + refugoProdutoAcabado;
-    const componenteAtualizada = refugoMaterias + refugoProdutoAcabado;
-    //const queryListarParametros = "SELECT id_producao, id_produto_materia_prima, id_produto_material, id_produto_acabado, quantidade_produzidas, quantidade_demanda_atual, tempo_total_producao, hora_inicial, hora_final, quantidade_refugo_materia_prima, quantidade_refugo_produto_acabado, quantidade_refugo_material, tempo_parada_linha, observacao_parada_linha, status_producao, quantidade_operadores, turno FROM producao_linha";
+    const MateriaPrimaAtualizada = refugoMateriaPrima + refugoProdutoAcabado + quantidadeProduzida;
+    const componenteAtualizada = refugoMaterias + refugoProdutoAcabado + quantidadeProduzida;
     const queryFinalizarLinha = `UPDATE producao_linha SET hora_final = '${horaAtual}', quantidade_produzidas = ${quantidadeProduzida}, hora_inicial = '${horaInicial}', quantidade_refugo_materia_prima = ${refugoMateriaPrima}, quantidade_refugo_material = ${refugoMaterias}, quantidade_refugo_produto_acabado = ${refugoProdutoAcabado}, turno = '${turno}', tempo_total_producao = '${tempoTotalProducao}', quantidade_operadores = ${quatidadeOperadores}, status_producao = 2 WHERE id_producao = ${id_producao};`;
-
     const queryConsumirEstoqueMateriaPrima = "UPDATE produto_materia_prima SET Quantidade = Quantidade - "+ MateriaPrimaAtualizada +" WHERE Nome = '"+ materiaPrima +"';";
     const queryConsumirEstoqueComponente = "UPDATE produto_materia_prima_componente SET Quantidade = Quantidade - "+ componenteAtualizada +" WHERE Nome = '"+ componente +"';";
+    const queryInserirEstoquePA = "UPDATE produto_acabado SET Quantidade = Quantidade + "+ quantidadeProduzida +" WHERE Material_Consumo = '"+ componente +"' and Materia_Prima_Consumo = '"+ materiaPrima +"';";
 
 
+    db.query(queryInserirEstoquePA, (err, data) => {
 
+        if (err) return res.json(err);
 
-    
+        console.log("Query 5 ok!");
+
+        
+    });
+
     db.query(queryFinalizarLinha, (err, data) => {
 
         if (err) return res.json(err);
